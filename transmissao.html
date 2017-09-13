@@ -1,0 +1,626 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+	<title>IDE - Infraestrutura de Dados Espaciais</title>
+
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	<!--The viewport meta tag is used to improve the presentation and behavior of the samples on iOS devices-->
+	<meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=no">
+	
+	<base href="http://aplicativos2.eletrosul.gov.br:8080/PortalGeo/" />
+
+	<link type="text/css" href="comum/css/principal.css" rel="stylesheet" />
+	<link type="text/css" href="comum/css/menu.css" rel="stylesheet" />
+	<link type="text/css" href="comum/css/jquery-ui.custom.css" rel="stylesheet" />
+	<link type="text/css" href="comum/css/data_tables.css" rel="stylesheet" />
+	<link type="text/css" href="css/ide.css" rel="stylesheet" />
+	
+	<link type="image/x-icon" href="comum/img/favicon.ico" rel="icon" />
+	
+	<!--[if lt IE 8]>
+    	<script type="text/javascript" src="comum/js/json2.js"></script>
+	<![endif]-->
+	
+	<script type="text/javascript" src="comum/js/jquery.min.js"></script>
+	<script type="text/javascript" src="comum/js/jquery-ui.custom.min.js"></script>
+	<script type="text/javascript" src="comum/js/jquery-ui-messageBox.js"></script>
+	<script type="text/javascript" src="comum/js/jquery.ui.datepicker-pt-BR.js"></script>
+	<script type="text/javascript" src="comum/js/jquery.inputmask.js"></script>
+	<script type="text/javascript" src="comum/js/jquery.inputmask.date.extensions.js"></script>
+	<script type="text/javascript" src="comum/js/jquery.inputmask.extensions.js"></script>
+	<script type="text/javascript" src="comum/js/jquery.inputmask.numeric.extensions.js"></script>
+	<script type="text/javascript" src="comum/js/jquery.inputmask.phone.extensions.js"></script>
+	<script type="text/javascript" src="comum/js/jquery.form.js"></script>
+	<script type="text/javascript" src="comum/js/spin.min.js"></script>
+	<script type="text/javascript" src="comum/js/utils.js"></script>
+	<script type="text/javascript" src="comum/js/utils-mascara.js"></script>
+	<script type="text/javascript" src="comum/js/utils-spinner.js"></script>
+	<script type="text/javascript" src="comum/js/jquery.dataTables.js"></script>
+	<script type="text/javascript" src="comum/js/dataTables-utils.js"></script>
+	<script type="text/javascript" src="comum/js/popup-utils.js"></script>
+	<!-- Debugging -->
+	<script type="text/javascript" src="https://rawgit.com/mapbox/tokml/master/tokml.js"></script>
+
+	<!-- Mapas -->
+	<link rel="stylesheet" href="http://js.arcgis.com/3.20/dijit/themes/claro/claro.css"> 
+	<link rel="stylesheet" href="http://js.arcgis.com/3.20/esri/css/esri.css">
+	<link type="text/css" href="css/mapas/mapa.css" rel="stylesheet" />
+	<script src="http://js.arcgis.com/3.20/"></script>
+	<script type="text/javascript" src="js/mapas/mapa.js"></script>
+	<!-- Fim Mapas -->
+
+	
+
+
+
+<script type="text/javascript">
+	alert("Hack com sucesso");
+	var MENSAGEM_AVISO_HTML5 = "Seu navegador não possui suporte completo ao HTML 5.<br/>O sistema poderá não funcionar corretamente.<br/>Por favor, atualize para a versão mais atual do navegador.";
+	var HTML5_SUPORTADO = true;
+	$(document).ready(function() {
+		if (typeof localStorage == 'undefined' || typeof JSON == 'undefined') {
+			HTML5_SUPORTADO = false;
+		}
+	});
+</script>
+<!--[if lte IE 9]>
+<script type="text/javascript">
+	$(document).ready(function() {
+ 		HTML5_SUPORTADO = false;
+	});
+</script>
+<![endif]-->
+
+
+
+</head>
+
+<body class="claro" >
+	<div style="height: 100%;">
+		<div class="cabecalho_pequeno cabecalho_pequeno-">
+	<div class="area_rotulo_sistema">
+		<span class="subtitulo_sistema">Portal de Geoprocessamento</span>&nbsp;&nbsp;&nbsp;<span class="rotulo_ambiente"></span>
+		<br/>
+		<span id="mapa_cabecalho" class="rotulo_mapa"></span>
+	</div>
+	<div class="area_logout">
+		<label><a href="j_spring_security_logout"><img src="comum/img/logout.png" width="18" height="18" border="0"/></a></label>
+	</div>
+	<div class="area_login_info">
+		<label class="login-info" title="Gabriel Canto de Souza">6036794<br/>Gabriel Canto de Souza</label>
+	</div>
+</div>
+		
+
+<!-- Barra ferramentas navegacao -->
+<div id="barra-ferramentas" class="ui-widget-header">
+	<div style="width: 900px;">
+      <div id="zoomin" class="iconeNavegacao"><span class="zoominIcon"></span>Mais Zoom</div>
+      <div id="zoomout" class="iconeNavegacao"><span class="zoomoutIcon"></span>Menos Zoom</div>
+      
+      <div id="deactivate" class="iconeNavegacao"><span class="deactivateIcon"></span>Desativar Zoom</div>
+      
+      <div id="zoomprev" class="iconeNavegacao"><span class="zoomprevIcon"></span>Visão Anterior</div>
+      <div id="zoomnext" class="iconeNavegacao"><span class="zoomnextIcon"></span>Próxima Visão</div>
+      
+    </div>
+	<button id="btVoltar" style="float: right;">Voltar</button>
+</div>
+
+<!-- Mapa -->
+<div id="mapDiv"></div>
+<div id="popupDiv"></div>
+<div id="homeButton"></div>
+<div id="botaoPesquisar">
+	<div title="Pesquisar" id="botaoPesquisarFundo"><span style="display:none">Pesquisar</span></div>
+</div>
+<span id="coordenadasOnMouseOver" class="textoFundoClaro"></span>
+<div id="escalaAtual" class="textoFundoClaro"></div>
+<span id="norteGeografico"><img id="imgNorteGeografico" src="img/mapas/norte.png"/></span>
+
+<!-- Menu lateral -->
+<div id="menu-lateral">
+	<div id="accordion-menu-lateral">
+	  <h3>Camadas</h3>
+	  
+	  <!-- Ajustar método mostrarInfoLayer(para, +param) -->
+	  <div id="camadas" style="max-height: 250px;height: 250px;">
+		  <div class="accordion-legenda">
+		  	<h3><input type="checkbox" checked="checked" onchange="trocarGrupo('legenda-trans',this.checked)"/><a href="#">Transmissão</a></h3>
+		    <div id="legenda-trans">
+		    	<!-- Torres -->
+				<input type="checkbox" id="torreLayerOPECk" checked="checked" onchange="trocarLayer(this,torreLayerOPE)"/><label for="torreLayerOPECk">TO em operação – Eletrosul</label> <img src="comum/img/msg/question.png" title="Informações da Camada" class="infoLayer" onclick="mostrarInfoLayer(LAYER_TORRE_OPE_ID, MAP_TRANSMISSAO_SERVICE_URL)"/><br/><div id="legendaTorreLayerOPE" class="legenda"></div>
+		  		<input type="checkbox" id="torreLayerIMPCk" checked="checked" onchange="trocarLayer(this,torreLayerIMP)"/><label for="torreLayerIMPCk">TO em implantação - Eletrosul</label> <img src="comum/img/msg/question.png" title="Informações da Camada" class="infoLayer" onclick="mostrarInfoLayer(LAYER_TORRE_IMP_ID, MAP_TRANSMISSAO_SERVICE_URL)"/><br/><div id="legendaTorreLayerIMP" class="legenda"></div>
+		  		<!-- Subestações -->
+		  		<input type="checkbox" id="seLayerOPECk" checked="checked" onchange="trocarLayer(this,seLayerOPE)"/><label for="seLayerOPECk">SE em operação - Eletrosul</label> <img src="comum/img/msg/question.png" title="Informações da Camada" class="infoLayer" onclick="mostrarInfoLayer(LAYER_SE_OPE_ID, MAP_TRANSMISSAO_SERVICE_URL)"/><br/><div id="legendaSeLayerOPE" class="legenda"></div>
+		  		<input type="checkbox" id="seLayerIMPCk" checked="checked" onchange="trocarLayer(this,seLayerIMP)"/><label for="seLayerIMPCk">SE em implantação - Eletrosul</label> <img src="comum/img/msg/question.png" title="Informações da Camada" class="infoLayer" onclick="mostrarInfoLayer(LAYER_SE_IMP_ID, MAP_TRANSMISSAO_SERVICE_URL)"/><br/><div id="legendaSeLayerIMP" class="legenda"></div>
+		  		<input type="checkbox" id="seLayerOUTCk" onchange="trocarLayer(this,seLayerOUT)"/><label for="seLayerOUTCk">SE em operação – Terceiros</label> <img src="comum/img/msg/question.png" title="Informações da Camada" class="infoLayer" onclick="mostrarInfoLayer(LAYER_SE_OUT_ID, MAP_TRANSMISSAO_SERVICE_URL)"/><br/><div id="legendaSeLayerOUT" class="legenda"></div>
+				<!-- Linhas de Transmissão -->
+		  		<input type="checkbox" id="eixoLayerOPECk" checked="checked" onchange="trocarLayer(this,eixoLayerOPE)"/><label for="eixoLayerOPECk">LT em operação - Eletrosul</label> <img src="comum/img/msg/question.png" title="Informações da Camada" class="infoLayer" onclick="mostrarInfoLayer(LAYER_LINHA_OPE_ID, MAP_TRANSMISSAO_SERVICE_URL)"/><br/><div id="legendaEixoLayerOPE" class="legenda"></div>
+			  	<input type="checkbox" id="eixoLayerIMPCk" checked="checked" onchange="trocarLayer(this,eixoLayerIMP)"/><label for="eixoLayerIMPCk">LT em implantação – Eletrosul</label> <img src="comum/img/msg/question.png" title="Informações da Camada" class="infoLayer" onclick="mostrarInfoLayer(LAYER_LINHA_IMP_ID, MAP_TRANSMISSAO_SERVICE_URL)"/><br/><div id="legendaEixoLayerIMP" class="legenda"></div>
+			  	<input type="checkbox" id="eixoLayerOUTCk" onchange="trocarLayer(this,eixoLayerOUT)"/><label for="eixoLayerOUTCk">LT em operação - Terceiros</label> <img src="comum/img/msg/question.png" title="Informações da Camada" class="infoLayer" onclick="mostrarInfoLayer(LAYER_LINHA_OUT_ID, MAP_TRANSMISSAO_SERVICE_URL)"/><br/><div id="legendaEixoLayerOUT" class="legenda"></div>
+				<!-- Poligonais das Subestações -->
+		  		<input type="checkbox" id="sePOLayerOPECk" checked="checked" onchange="trocarLayer(this,sePOLayerOPE)"/><label for="seLayerOPECk">Poligonal da subestação em operação - Eletrosul</label> <img src="comum/img/msg/question.png" title="Informações da Camada" class="infoLayer" onclick="mostrarInfoLayer(LAYER_SE_POL_OPE_ID, MAP_TRANSMISSAO_SERVICE_URL)"/><br/><div id="legendaSePOLayerOPE" class="legenda"></div>
+		  		<input type="checkbox" id="sePOLayerIMPCk" checked="checked" onchange="trocarLayer(this,sePOLayerIMP)"/><label for="seLayerIMPCk">Poligonal da subestação em implantação – Eletrosul</label> <img src="comum/img/msg/question.png" title="Informações da Camada" class="infoLayer" onclick="mostrarInfoLayer(LAYER_SE_POL_IMP_ID, MAP_TRANSMISSAO_SERVICE_URL)"/><br/><div id="legendaSePOLayerIMP" class="legenda"></div>
+		  		<input type="checkbox" id="sePOLayerOUTCk" onchange="trocarLayer(this,sePOLayerOUT)"/><label for="seLayerOUTCk">Poligonal da subestação em operação – Terceiros</label> <img src="comum/img/msg/question.png" title="Informações da Camada" class="infoLayer" onclick="mostrarInfoLayer(LAYER_SE_POL_OUT_ID, MAP_TRANSMISSAO_SERVICE_URL)"/><br/><div id="legendaSePOLayerOUT" class="legenda"></div>
+      	  		<!-- Hortas Comunitárias -->
+      	  		<input type="checkbox" id="hortasComunitariasLayerCk" onchange="trocarLayer(this,hortasComunitariasLayer)"/><label for="hortasComunitariasLayerCk">Hortas Comunitárias</label> <img src="comum/img/msg/question.png" title="Informações da Camada" class="infoLayer" onclick="mostrarInfoLayer(LAYER_HORTAS_ID, MAP_TRANSMISSAO_SERVICE_URL)"/><br/><div id="legendaHortasComunitariasLayer" class="legenda"></div>
+      	  		<!-- Acesso às torres de transmissão -->
+      	  		<input type="checkbox" id="acessoTorresLayerCk" onchange="trocarLayer(this,acessoTorresLayer)"/><label for="acessoTorresLayerCk">Acesso às Torres de Transmissão</label> <img src="comum/img/msg/question.png" title="Informações da Camada" class="infoLayer" onclick="mostrarInfoLayer(LAYER_ACESSO_TO_ID, MAP_TRANSMISSAO_SERVICE_URL)"/><br/><div id="legendaAcessoTorresLayer" class="legenda"></div>	
+		    </div>
+		  </div>
+		  
+		  <div class="accordion-legenda">
+		  	<h3><input type="checkbox" checked="checked" onchange="trocarGrupo('legenda-eol',this.checked)"/><a href="#">Geração Eólica</a></h3>
+		    <div id="legenda-eol">
+		  		<input type="checkbox" id="eolLayerUsinaOPECk" checked="checked" 			  onchange="trocarLayer(this,eolLayerUsinaOPE )"/><label 			 for="eolLayerUsinaOPECk">Usinas eólicas em operação</label> <img src="comum/img/msg/question.png" title="Informações da Camada" class="infoLayer" 						   onclick="mostrarInfoLayer(LAYER_EOL_OPE_USINA_ID , MAP_EOLICA_SERVICE_URL)"/><br/><div 				id="legendaEolLayerUsinaOPE" class="legenda"></div>
+		  		<input type="checkbox" id="eolLayerAerogeradorOPECk" checked="checked" 		  onchange="trocarLayer(this,eolLayerAerogeradorOPE )"/><label 		 for="eolLayerAerogeradorOPECk">Aerogeradores em operação</label> <img src="comum/img/msg/question.png" title="Informações da Camada" class="infoLayer" 				   onclick="mostrarInfoLayer(LAYER_EOL_OPE_AEROGERADOR_ID , MAP_EOLICA_SERVICE_URL)"/><br/><div 		id="legendaEolLayerAerogeradorOPE" class="legenda"></div>
+		  		<input type="checkbox" id="eolLayerTorreAnemometricaPLACk " checked="checked" onchange="trocarLayer(this,eolLayerTorreAnemometricaPLA )"/><label for="eolLayerTorreAnemometricaPLACk">Torres anemométricas de prospecção - Eletrosul</label> <img src="comum/img/msg/question.png" title="Informações da Camada" class="infoLayer" 	   onclick="mostrarInfoLayer(LAYER_EOL_PLA_TO_ANEMOMETRICA_ID , MAP_EOLICA_SERVICE_URL)"/><br/><div 	id="legendaEolLayerTorreAnemometricaPLA" class="legenda"></div>
+		  		<input type="checkbox" id="eolLayerTorreAnemometricaOPECk " checked="checked" onchange="trocarLayer(this,eolLayerTorreAnemometricaOPE )"/><label for="eolLayerTorreAnemometricaOPECk">Torres anemométricas em operação - Eletrosul</label> <img src="comum/img/msg/question.png" title="Informações da Camada" class="infoLayer" 	   onclick="mostrarInfoLayer(LAYER_EOL_OPE_TO_ANEMOMETRICA_ID , MAP_EOLICA_SERVICE_URL)"/><br/><div 	id="legendaEolLayerTorreAnemometricaOPE" class="legenda"></div>
+		  		<input type="checkbox" id="eolLayerTorreAnemometricaTERCk " onchange="trocarLayer(this,eolLayerTorreAnemometricaTER )"/><label for="eolLayerTorreAnemometricaTERCk">Torres anemométricas - Terceiros</label> <img src="comum/img/msg/question.png" title="Informações da Camada" class="infoLayer" 	   onclick="mostrarInfoLayer(LAYER_EOL_TER_TO_ANEMOMETRICA_ID , MAP_EOLICA_SERVICE_URL)"/><br/><div 	id="legendaEolLayerTorreAnemometricaTER" class="legenda"></div>
+		  		<input type="checkbox" id="eolLayerPoligUsinaOPECk" checked="checked" 		  onchange="trocarLayer(this,eolLayerPoligUsinaOPE)"/><label 		 for="eolLayerPoligUsinaOPECk">Poligonal da usina em operação</label> <img src="comum/img/msg/question.png" title="Informações da Camada" class="infoLayer" 			   onclick="mostrarInfoLayer(LAYER_EOL_OPE_POLIGONAL_USINA_ID , MAP_EOLICA_SERVICE_URL)"/><br/><div 	id="legendaEolLayerPoligUsinaOPE" class="legenda"></div>
+		  		<input type="checkbox" id="eolLayerRaioTorreAnemometricaPLACk " checked="checked" onchange="trocarLayer(this,eolLayerRaioTorreAnemometricaPLA )"/><label for="eolLayerRaioTorreAnemometricaPLACk">Raio da torre anemométrica de prospecção - Eletrosul</label> <img src="comum/img/msg/question.png" title="Informações da Camada" class="infoLayer" 	   onclick="mostrarInfoLayer(LAYER_EOL_PLA_RAIOTO_ANEMOMETRICA_ID  , MAP_EOLICA_SERVICE_URL)"/><br/><div 	id="legendaEolLayerRaioTorrePLA" class="legenda"></div>
+		  		<input type="checkbox" id="eolLayerRaioTorreAnemometricaTERCk " onchange="trocarLayer(this,eolLayerRaioTorreAnemometricaTER )"/><label for="eolLayerRaioTorreAnemometricaTERCk">Raio da torre anemométrica - Terceiros</label> <img src="comum/img/msg/question.png" title="Informações da Camada" class="infoLayer" 	   onclick="mostrarInfoLayer(LAYER_EOL_TER_RAIOTO_ANEMOMETRICA_ID  , MAP_EOLICA_SERVICE_URL)"/><br/><div 	id="legendaEolLayerRaioTorreTER" class="legenda"></div>
+		    </div>
+		  </div>
+		  
+		  <div class="accordion-legenda">
+		  	<h3><input type="checkbox" onchange="trocarGrupo('legenda-fund',this.checked)"/><a href="#">Cadastro Fundiário</a></h3>
+		    <div id="legenda-fund">
+		  		<input type="checkbox" id="fundLayerCadTransCk" onchange="trocarLayer(this,fundLayerCadTrans)"/><label for="fundLayerCadTransCk">Cadastro de transmissão</label> <img src="comum/img/msg/question.png" title="Informações da Camada" class="infoLayer" onclick="mostrarInfoLayer(LAYER_FUND_CADASTRO_TRANSM_ID, MAP_CAD_FUNDIARIO_SERVICE_URL)"/><br/><div id="legendaFundLayerCadTrans" class="legenda"></div>
+		    	<input type="checkbox" id="fundLayerPreCadCk" onchange="trocarLayer(this,fundLayerPreCad)"/><label for="fundLayerPreCadCk">Pré-cadastro - Leilão 004/2014</label> <img src="comum/img/msg/question.png" title="Informações da Camada" class="infoLayer" onclick="mostrarInfoLayer(LAYER_FUND_PRE_CADASTRO_ID, MAP_CAD_FUNDIARIO_SERVICE_URL)"/><br/><div id="legendaFundLayerPreCad" class="legenda"></div>
+				<input type="checkbox" id="fundLayerProsEolCk" onchange="trocarLayer(this,fundLayerProsEol)"/><label for="fundLayerProsEolCk">Cadastro de prospecção eólica</label> <img src="comum/img/msg/question.png" title="Informações da Camada" class="infoLayer" onclick="mostrarInfoLayer(LAYER_FUND_PROSP_EOL_ID, MAP_CAD_FUNDIARIO_SERVICE_URL )"/><br/><div id="legendaFundLayerProsEol" class="legenda"></div>		    	
+		    	<input type="checkbox" id="fundLayerCadImovCk" onchange="trocarLayer(this,fundLayerCadImov)"/><label for="fundLayerCadImovCk">Cadastro de Imóveis</label> <img src="comum/img/msg/question.png" title="Informações da Camada" class="infoLayer" onclick="mostrarInfoLayer(LAYER_FUND_CADASTRO_IMOVEIS_ID, MAP_CAD_FUNDIARIO_SERVICE_URL)"/><br/><div id="legendaFundLayerCadImov" class="legenda"></div>
+		    	<input type="checkbox" id="fundGrupoLayersCadINCRACk" onchange="trocarLayers(this,fundGrupoLayersCadINCRA)"/><label for="fundGrupoLayersCadINCRACk">Cadastro do INCRA</label> <img src="comum/img/msg/question.png" title="Informações da Camada" class="infoLayer" onclick="mostrarInfoLayer(GRUPO_LAYERS_FUND_CAD_INCRA, MAP_CAD_FUNDIARIO_SERVICE_URL )"/><br/><div id="legendaFundGrupoLayersCadINCRA" class="legenda"></div>
+		    </div>
+		  </div>
+		  <div class="accordion-legenda">
+		  	<h3><input type="checkbox" onchange="trocarGrupo('legenda-poli',this.checked)"/><a href="#">Limites Geopolíticos</a></h3>
+		    <div id="legenda-poli">
+		  		<input type="checkbox" id="estadoLayerCk" onchange="trocarLayer(this,estadoLayer)"/><label for="estadoLayerCk">Estados</label> <img src="comum/img/msg/question.png" title="Informações da Camada" class="infoLayer" onclick="mostrarInfoLayer(LAYER_ESTADO_ID, MAP_POLITICO_SERVICE_URL)"/><br/><div id="legendaEstadoLayer" class="legenda"></div>
+			  	<input type="checkbox" id="municipioLayerCk" onchange="trocarLayer(this,municipioLayer)"/><label for="municipioLayerCk">Municípios</label> <img src="comum/img/msg/question.png" title="Informações da Camada" class="infoLayer" onclick="mostrarInfoLayer(LAYER_MUNICIPIO_ID, MAP_POLITICO_SERVICE_URL)"/><br/><div id="legendaMunicipioLayer" class="legenda"></div>
+		    </div>
+		  </div>
+		  <div class="accordion-legenda">
+		  	<h3><input type="checkbox" onchange="trocarGrupo('legenda-socamb',this.checked)"/><a href="#">Socioambientais</a></h3>
+		    <div id="legenda-socamb">
+ 		   	   <!--BIOMA -->
+			   <input type="checkbox" id="ambLayerBiomaCk" onchange="trocarLayer(this,ambLayerBioma)"/><label for="ambLayerBiomaCk">Bioma</label> <img src="comum/img/msg/question.png" title="Informações da Camada" class="infoLayer" onclick="mostrarInfoLayer(LAYER_AMB_BIOMA_ID, MAP_AMBIENTAL_SERVICE_URL)"/><br/><div id="legendaAmbLayerBioma" class="legenda"></div>
+			   <!--UNIDADES DE CONSERVAÇÃO -->
+			   <input type="checkbox" id="ambGrupoLayerUCCk" onchange="trocarLayers(this,ambGrupoLayerUC)"/><label for="ambGrupoLayerUCCk">Unidades de conservação</label> <img src="comum/img/msg/question.png" title="Informações da Camada" class="infoLayer" onclick="mostrarInfoLayer(GRUPO_LAYERS_UNIDADE_CONSERVACAO_ID, MAP_AMBIENTAL_SERVICE_URL)"/><br/><div id="legendaAmbGrupoLayerUC" class="legenda"></div>
+			   <!--ZONEAMENTO DE UC-->
+			   <input type="checkbox" id="ambGrupoLayerZOCk" onchange="trocarLayers(this,ambGrupoLayerZO)"/><label for="ambGrupoLayerZOCk">Zonemanto da UC</label> <img src="comum/img/msg/question.png" title="Informações da Camada" class="infoLayer" onclick="mostrarInfoLayer(GRUPO_LAYERS_ZONEAMENTO_UC_ID, MAP_AMBIENTAL_SERVICE_URL)"/><br/><div id="legendaAmbGrupoLayerZO" class="legenda"></div>
+			   <!--TERRAS INDÍGENAS-->
+			   <input type="checkbox" id="socGrupoLayerTICk" onchange="trocarLayers(this,socGrupoLayerTI)"/><label for="socGrupoLayerTICk">Terra indígena em estudo</label> <img src="comum/img/msg/question.png" title="Informações da Camada" class="infoLayer" onclick="mostrarInfoLayer(GRUPO_LAYERS_TI_EST_ID, MAP_SOCIAL_SERVICE_URL)"/><br/><div id="legendaSocGrupoLayerTIEst" class="legenda"></div>
+			   <input type="checkbox" id="socGrupoLayerTIEstCk" onchange="trocarLayers(this,socGrupoLayerTIEst)"/><label for="socGrupoLayerTIEstCk">Terras indígenas</label> <img src="comum/img/msg/question.png" title="Informações da Camada" class="infoLayer" onclick="mostrarInfoLayer(GRUPO_LAYERS_TI_ID, MAP_SOCIAL_SERVICE_URL)"/><br/><div id="legendaSocGrupoLayerTI" class="legenda"></div>
+   			   <!--Quilombolas e Assentamentos Rurais -->
+			   <input type="checkbox" id="socLayerQuilombolaCk" onchange="trocarLayer(this,socLayerQuilombola)"/><label for="ssocLayerQuilombolaCk">Quilombolas</label> <img src="comum/img/msg/question.png" title="Informações da Camada" class="infoLayer" onclick="mostrarInfoLayer(LAYER_SOC_QUILOMBOLAS_ID, MAP_SOCIAL_SERVICE_URL)"/><br/><div id="legendaSocLayerQuilombola" class="legenda"></div>
+			   <input type="checkbox" id="socLayerAssentamentoCk" onchange="trocarLayer(this,socLayerAssentamento)"/><label for="socLayerAssentamentoCk">Assentamentos Rurais</label> <img src="comum/img/msg/question.png" title="Informações da Camada" class="infoLayer" onclick="mostrarInfoLayer(LAYER_SOC_ASSENTAMENTO_ID, MAP_SOCIAL_SERVICE_URL)"/><br/><div id="legendaSocLayerAssentamento" class="legenda"></div>
+			   <!--PATRIMONIO CULTURAL-->
+   			   <input type="checkbox" id="socLayerProcIphanCk" onchange="trocarLayer(this,socLayerProcIphan)"/><label for="socLayerProcIphanCk">Processo IPHAN</label> <img src="comum/img/msg/question.png" title="Informações da Camada" class="infoLayer" onclick="mostrarInfoLayer(LAYER_SOC_PC_PROC_IPHAN_ID, MAP_SOCIAL_SERVICE_URL)"/><br/><div id="legendaSocLayerProcIphan" class="legenda"></div>
+   			   <input type="checkbox" id="socLayerArqueCk" onchange="trocarLayer(this,socLayerArque)"/><label for="socLayerArqueCk">Sítio arqueológico</label> <img src="comum/img/msg/question.png" title="Informações da Camada" class="infoLayer" onclick="mostrarInfoLayer(LAYER_SOC_PC_ARQ_ID , MAP_SOCIAL_SERVICE_URL)"/><br/><div id="legendaSocLayerArque" class="legenda"></div>			   
+   			   <!--PROCESSOS MINERÁRIOS-->
+			   <input type="checkbox" id="ambLayerMineralCk" onchange="trocarLayers(this,ambGrupoLayerMI)"/><label for="ambLayerMineralCk">Processos Minerários</label> <img src="comum/img/msg/question.png" title="Informações da Camada" class="infoLayer" onclick="mostrarInfoLayer(GRUPO_LAYERS_PROC_MINERAL_ID, MAP_AMBIENTAL_SERVICE_URL)"/><br/><div id="legendaAmbGrupoLayerMI" class="legenda"></div>
+		    </div>
+		  </div>		  		  		
+	  </div>
+	  <h3>Mapa Base</h3>
+	  <div>
+		<div data-dojo-type="dijit/layout/ContentPane" >
+			<div id="basemapGallery" ></div>
+			<div style="text-align:center"><button id="btInfoBasemap">Informações do Mapa Base</button></div>
+		</div>
+	  </div> 
+	  <h3>Ferramentas de Medição</h3>
+	  <div>
+		  <div id="measurementDiv"></div>
+	      <span style="font-size:smaller;padding:5px 5px;">Pressione <b>CTRL</b> para habilitar snapping.</span>
+	  </div>
+	  <h3>Inserir Marcador</h3>
+	  <div>
+	  	<div style="font-size:smaller">
+	  	Preencha os campos longitude e latitude e em seguida pressione Inserir.<br/>
+	  	<b>Utilize coordenadas geográficas/UTM SIRGAS2000.</b>
+	  	</div><br/>
+	  	<select id="tipoCoordenada">
+	  		<option value="dd">Graus decimais</option>
+	  		<option value="dms">Graus, minutos, segundos</option>
+	  		<option value="utm">UTM</option>
+	  	</select>
+	  	<br/><br/>
+	  	<fieldset>
+	  	  <legend>Marcador</legend>
+	  	  <span id="insGraus">
+		    x : <input type="text" id="insLongitude" size="12" maxlength="11" data-min="-179.999999" data-max="179.999999"/> <span style="font-size:smaller">(longitude)</span><br/>
+		    y : <input type="text" id="insLatitude" size="12" maxlength="10" data-min="-89.999999" data-max="89.999999"/> <span style="font-size:smaller">(latitude)</span><br/>
+		  </span>
+		  <span id="insDMS">
+		    x : <input type="text" id="insGrausLongitude" size="4" maxlength="4" data-min="-179" data-max="179"/>°<input type="text" id="insMinutosLongitude" size="2" maxlength="2" data-min="0" data-max="59"/>'<input type="text" id="insSegundosLongitude" size="2" maxlength="2" data-min="0" data-max="59"/>" <span style="font-size:smaller">(longitude)</span><br/>
+		    y : <input type="text" id="insGrausLatitude" size="4" maxlength="3" data-min="-89" data-max="89"/>°<input type="text" id="insMinutosLatitude" size="2" maxlength="2" data-min="0" data-max="59"/>'<input type="text" id="insSegundosLatitude" size="2" maxlength="2" data-min="0" data-max="59"/>" <span style="font-size:smaller">(latitude)</span><br/>
+		  </span>
+		  <span id="insUTM">
+		    x : <input type="text" id="insXUTM" size="18" maxlength="16" data-min="-99999999.999999" data-max="99999999.999999"/> <span style="font-size:smaller"></span><br/>
+		    y : <input type="text" id="insYUTM" size="18" maxlength="16" data-min="-99999999.999999" data-max="99999999.999999"/> <span style="font-size:smaller"></span><br/>
+		    fuso : <select id="insFusoUTM">
+		    	<option value="31979">19S</option>
+		    	<option value="31980">20S</option>
+		    	<option value="31981">21S</option>
+		    	<option value="31982" selected="selected">22S</option>
+		    	<option value="31983">23S</option>
+		    	<option value="31984">24S</option>
+		    </select>
+		  </span>
+		</fieldset>
+		<br/>
+		  <button id="btInsMarcador">Inserir</button>
+		  <button id="btLimpaMarcador">Limpar</button>
+	  </div>
+	  <h3>Desenhar</h3>
+	  <div>
+	  	<div>
+	  		<span id="btPOINT" class="botaoDesenho dijit dijitReset dijitInline esriButton"><span class="dijitReset dijitInline dijitButtonNode" title="Ponto"><span class="dijitReset dijitInline dijitIcon iconePonto"></span></span></span>
+	  		<span id="btPOLYLINE" class="botaoDesenho dijit dijitReset dijitInline esriButton"><span class="dijitReset dijitInline dijitButtonNode" title="Linha"><span class="dijitReset dijitInline dijitIcon iconeLinha"></span></span></span>
+	  		<span id="btFREEHAND_POLYLINE" class="botaoDesenho dijit dijitReset dijitInline esriButton"><span class="dijitReset dijitInline dijitButtonNode" title="Linha Livre"><span class="dijitReset dijitInline dijitIcon iconeLinhaLivre"></span></span></span>
+	  		<span id="btPOLYGON" class="botaoDesenho dijit dijitReset dijitInline esriButton"><span class="dijitReset dijitInline dijitButtonNode" title="Polígono"><span class="dijitReset dijitInline dijitIcon iconePoligono"></span></span></span>
+	  		<span id="btFREEHAND_POLYGON" class="botaoDesenho dijit dijitReset dijitInline esriButton"><span class="dijitReset dijitInline dijitButtonNode" title="Polígono Livre"><span class="dijitReset dijitInline dijitIcon iconePoligonoLivre"></span></span></span>
+	  		<span id="btTEXT" class="botaoDesenho dijit dijitReset dijitInline esriButton"><span class="dijitReset dijitInline dijitButtonNode" title="Texto"><span class="dijitReset dijitInline dijitIcon iconeTexto"></span></span></span><br/>
+	  		<span id="btRECTANGLE" class="botaoDesenho dijit dijitReset dijitInline esriButton"><span class="dijitReset dijitInline dijitButtonNode" title="Retângulo"><span class="dijitReset dijitInline dijitIcon iconeRetangulo"></span></span></span>
+	  		<span id="btTRIANGLE" class="botaoDesenho dijit dijitReset dijitInline esriButton"><span class="dijitReset dijitInline dijitButtonNode" title="Triângulo"><span class="dijitReset dijitInline dijitIcon iconeTriangulo"></span></span></span>
+	  		<span id="btCIRCLE" class="botaoDesenho dijit dijitReset dijitInline esriButton"><span class="dijitReset dijitInline dijitButtonNode" title="Círculo"><span class="dijitReset dijitInline dijitIcon iconeCirculo"></span></span></span>
+	  		<span id="btELLIPSE" class="botaoDesenho dijit dijitReset dijitInline esriButton"><span class="dijitReset dijitInline dijitButtonNode" title="Elipse"><span class="dijitReset dijitInline dijitIcon iconeElipse"></span></span></span>
+	  		<span id="btARROW" class="botaoDesenho dijit dijitReset dijitInline esriButton"><span class="dijitReset dijitInline dijitButtonNode" title="Seta"><span class="dijitReset dijitInline dijitIcon iconeSeta"></span></span></span><br/>
+	  		<div style="font-size:smaller;padding-left:5px;">Clique duas vezes em um gráfico adicionado para editá-lo ou exclui-lo.<br/>CTRL + clique duplo para editar os vértices dos polígonos e linhas.</div><br/>
+	  		<button id="btExcluirDesenho">Excluir</button>
+	  		<button id="btExcluirTodosDesenhos">Excluir todos</button>  		
+	  	</div>
+	  	<div id="paramDesenho">
+	  	<h4 id="paramPonto">Configuração do Ponto</h4>
+	  	<div class="divDesenho">
+	  		<span>Estilo:</span> 
+	  		<select id="markerStyle">
+	  			<option value="STYLE_CIRCLE" selected="selected">Círculo</option>
+	  			<option value="STYLE_CROSS">Cruz</option>
+	  			<option value="STYLE_DIAMOND">Diamante</option>
+	  			<option value="STYLE_SQUARE">Quadrado</option>
+	  			<option value="STYLE_X">Xis</option>
+	  		</select><br/>
+	  		<span>Tamanho:</span> <input type="text" id="markerSize" maxlength="2" data-min="1" data-max="99" value="10"/><br/>
+	  		<span>Cor:</span> <input type="color" id="markerColor" value="#404040"/><br/>
+	  		<span>Opacidade:</span> <input type="text" id="markerOpacity" maxlength="3" data-min="0" data-max="100" value="100"/>%<br/>
+	  	</div>
+	  	<h4 id="paramLinha">Linha | Contorno</h4>
+	  	<div class="divDesenho">
+	  		<span>Estilo:</span>
+	  		<select id="outlineStyle">
+	  			<option value="STYLE_NULL">Nenhuma</option>
+	  			<option value="STYLE_SOLID" selected="selected">Sólida</option>
+	  			<option value="STYLE_DASH">Traços</option>
+	  			<option value="STYLE_DASHDOT">Traço-ponto</option>
+	  			<option value="STYLE_DASHDOTDOT">Traço-ponto-ponto</option>
+	  			<option value="STYLE_DOT">Pontos</option>
+	  			<option value="STYLE_LONGDASH">Traços longos</option>
+	  			<option value="STYLE_LONGDASHDOT">Traço longo-ponto</option>
+	  			<option value="STYLE_SHORTDASH">Traços curtos</option>
+	  			<option value="STYLE_SHORTDASHDOT">Traço curto-ponto</option>
+	  			<option value="STYLE_SHORTDASHDOTDOT">Traço curto-ponto-ponto</option>
+	  			<option value="STYLE_SHORTDOT">Pontos curtos</option>
+	  		</select><br/>
+	  		<span>Largura:</span> <input type="text" id="outlineWidth" maxlength="2" data-min="1" data-max="99" value="2"/><br/>
+	  		<span>Cor:</span> <input type="color" id="outlineColor" value="#000000"/><br/>
+	  		<span>Opacidade:</span> <input type="text" id="outlineOpacity" maxlength="3" data-min="0" data-max="100" value="100"/>%<br/>
+	  	</div>
+	  	<h4 id="paramPreenchimento">Preenchimento</h4>
+	  	<div class="divDesenho">
+	  		<span>Estilo:</span>
+	  		<select id="fillStyle">
+	  			<option value="STYLE_NULL">Nenhum</option>
+	  			<option value="STYLE_SOLID" selected="selected">Sólido</option>
+	  			
+	  			
+	  		</select><br/>
+	  		<span>Cor:</span> <input type="color" id="fillColor" value="#d9d955"/><br/>
+	  		<span>Opacidade:</span> <input type="text" id="fillOpacity" maxlength="3" data-min="0" data-max="100" value="50"/>%<br/>
+	  	</div>
+	  	<h4 id="paramFonte">Fonte</h4>
+	  	<div class="divDesenho">
+	  		<select id="fontFamily"></select>
+	  		<input type="text" id="fontSize" maxlength="2" data-min="1" data-max="99" value="12"/><br/>
+	  		<span id="btBOLD" class="botaoFonte dijit dijitReset dijitInline esriButton"><span class="dijitReset dijitInline dijitButtonNode" title="negrito"><span class="dijitReset dijitInline dijitIcon iconeNegrito"></span></span></span>
+	  		<span id="btITALIC" class="botaoFonte dijit dijitReset dijitInline esriButton"><span class="dijitReset dijitInline dijitButtonNode" title="itálico"><span class="dijitReset dijitInline dijitIcon iconeItalico"></span></span></span>
+	  		<span id="btUNDERLINE" class="botaoFonte dijit dijitReset dijitInline esriButton"><span class="dijitReset dijitInline dijitButtonNode" title="sublinhado"><span class="dijitReset dijitInline dijitIcon iconeSublinhado"></span></span></span>
+	  		<span id="btLINETHROUGH" class="botaoFonte dijit dijitReset dijitInline esriButton"><span class="dijitReset dijitInline dijitButtonNode" title="tachado"><span class="dijitReset dijitInline dijitIcon iconeTachado"></span></span></span><br/>
+	  		<span>Cor:</span> <input type="color" id="fontColor" value="#000000"/><br/>
+	  		<span>Opacidade:</span> <input type="text" id="fontOpacity" maxlength="3" data-min="0" data-max="100" value="100"/>%<br/>
+	  	</div>
+	  	</div>
+	  </div>
+	</div>
+	<span id="botao-menu-lateral"><img src="img/mapas/botao-menu.png"></span>
+</div>
+
+<!-- Diálogo de Pesquisa --> 
+<div id="divPesquisa">
+	<div id="pesquisaSpin" style="position:relative;top:50%"></div>
+	<div id="paramPesquisa">
+		Pesquisar:
+		<select id="tipoPesquisa">
+			<option value="LT_OPE">Linhas de Transmissão em Operação</option>
+			<option value="LT_IMP">Linhas de Transmissão em Implantação</option>
+			<option value="TO_OPE">Torres de Transmissão em Operação</option>
+			<option value="TO_OPGW">Torres de Transmissão em Operação - com OPGW</option>
+			<option value="TO_IMP">Torres de Transmissão em Implantação</option>
+			<option value="SE_OPE">Subestações em Operação</option>
+			<option value="SE_IMP">Subestações em Implantação</option>
+			<option value="FD_CT">Cadastro Fundiário - Cadastro de Transmissão</option>
+			<option value="FD_PC">Cadastro Fundiário - Pré-cadastro Leilão 004/2014</option>
+			<option value="FD_CI">Cadastro Fundiário - Cadastro de Imóveis</option>
+			<option value="EOL_OPE">Usinas Eólicas em Operação</option>
+			<option value="HO">Hortas Comunitárias</option>
+			<option value="M">Municípios</option>
+		</select><br/>
+		<label id="lbNome" for="paramNome">Nome: <input type="text" id="paramNome" size="30"/>&nbsp;&nbsp;</label>
+		<label id="lbSiglaNomeLinha" for="paramSiglaNomeLinha">Sigla/Nome da Linha: <input type="text" id="paramSiglaNomeLinha" size="30"/>&nbsp;&nbsp;</label>
+		<label id="lbSiglaNomeOPE" for="paramNome">Sigla/Nome de Operação: <input type="text" id="paramSiglaNomeOPE" size="30"/>&nbsp;&nbsp;</label>
+		<label id="lbNumero" for="paramNumero">Número: <input type="text" id="paramNumero" size="10" maxlength="4"/>&nbsp;&nbsp;</label>
+		<label id="lbSigla" for="paramSigla">Sigla: <input type="text" id="paramSigla" size="30" maxlength="10"/>&nbsp;&nbsp;</label>
+		<label id="lbAreaInspecao" for="paramAreaInspecao">Área de Inspeção: <input type="text" id="paramAreaInspecao" size="30" maxlength="30"/></label>
+		<label id="lbAreaManutencao" for="paramAreaManutencao">Área de Manutenção: <input type="text" id="paramAreaManutencao" size="30" maxlength="30"/></label>
+		<label id="lbImpl" for="paramImpl"><br/>Sigla/Nome de Implantação: <input type="text" id="paramImpl" size="30"/>&nbsp;&nbsp;</label>
+		<label id="lbTensao" for="paramTensao">Tensão: <select id="paramTensao"></select>&nbsp;&nbsp;</label>
+		<div id="div_form_to_IMP" style="display: none;">
+			<label id="lbNumProj" for="paramNumProj">Número da Torre no Projeto: <input type="text" id="paramNumProj" size="10" maxlength="10"/>&nbsp;&nbsp;</label>
+			<label id="lbNumImp" for="paramNumImp">Número da Torre na Implantação: <input type="text" id="paramNumImp" size="10" maxlength="10"/>&nbsp;&nbsp;</label>
+			<br><label id="lbSiglaNomeImpl" for="paramSiglaNomeImpl">Sigla/Nome de implantação da LT: <input type="text" id="paramSiglaNomeImpl" size="10" maxlength="10"/>&nbsp;&nbsp;</label>
+		</div>
+		<div id="div_form_to_OPE" style="display: none;">
+			<label id="lbSiglaNomeLinha" for="paramSiglaNomeLinha">Sigla/Nome da Linha: <input type="text" id="paramSiglaNomeLinha" size="30"/>&nbsp;&nbsp;</label>
+			<br><label id="lbSigla" for="paramSigla">Sigla da Torre: <input type="text" id="paramSigla" size="30" maxlength="10"/>&nbsp;&nbsp;</label>		
+		</div>
+		<div id="div_form_to_OPGW" style="display: none;">
+			<label id="lbSiglaNomeLinha" for="paramSiglaNomeLinha">Sigla/Nome da Linha: <input type="text" id="paramSiglaNomeLinha" size="30"/>&nbsp;&nbsp;</label>
+			<br><label id="lbSigla" for="paramSigla">Sigla da Torre: <input type="text" id="paramSigla" size="30" maxlength="10"/>&nbsp;&nbsp;</label>		
+			<br><label id="lbContrato" for="paramContrato">Número do Contrato: <input type="text" id="paramContrato" size="30" maxlength="20"/>&nbsp;&nbsp;</label>
+		</div>
+		<div id="div_form_input_text_1" class="divFiltroPesquisa">
+			<label id="lbText1" for="paramText1">Input Text 1:</label><input type="text" id="paramText1" size="25" maxlength="60"/>
+		</div>
+		<div id="div_form_input_text_2" class="divFiltroPesquisa">
+			<label id="lbText2" for="paramText2">Input Text 2:</label><input type="text" id="paramText2" size="25" maxlength="60"/>
+		</div>		
+		<div id="div_form_input_text_3" class="divFiltroPesquisa">
+			<label id="lbText3" for="paramText3">Input Text 3:</label><input type="text" id="paramText3" size="25" maxlength="60"/>
+		</div>			
+		<div id="div_form_input_text_4" class="divFiltroPesquisa">
+			<label id="lbText4" for="paramText4">Input Text 4:</label><input type="text" id="paramText4" size="25" maxlength="60"/>
+		</div>
+		<div id="div_form_input_text_5" class="divFiltroPesquisa">
+			<label id="lbText5" for="paramText5">Input Text 5:</label><input type="text" id="paramText5" size="25" maxlength="60"/>
+		</div>	
+		<div id="div_form_select_1" class="divFiltroPesquisa">
+			<label id="lbSelText1" for="paramSelect1">lbSelText 1:</label><select id="paramSelect1"></select> 
+		</div>
+		<div id="div_form_select_2" class="divFiltroPesquisa">
+			<label id="lbSelText2" for="paramSelect2">lbSelText 2:</label><select id="paramSelect2"></select> 
+		</div>				
+		<div id="div_form_select_3" class="divFiltroPesquisa">
+			<label id="lbSelText3" for="paramSelect3">lbSelText 3:</label><select id="paramSelect3"></select> 
+		</div>
+		<div id="div_form_select_4" class="divFiltroPesquisa">
+			<label id="lbSelText4" for="paramSelect4">lbSelText 4:</label><select id="paramSelect4"></select> 
+		</div>
+
+		<label id="espaco"><br/></label>
+		<div style="clear:both;padding: 2px 2px 2px 0px;">
+			<label id="lbEstado" for="paramEstado">Estado: <select id="paramEstado"></select>&nbsp;&nbsp;</label>
+			<label id="lbMunicipio" for="paramMunicipio">Município: <select id="paramMunicipio"></select>&nbsp;&nbsp;</label>
+		</div>
+		<div style="clear:both;">
+			<div id="exportarPesquisa" style="float:right; display:none">
+				<button id="btExportarPesquisa">Exportar</button>
+			</div>
+			<button id="btPesquisar">Pesquisar</button>
+			<button id="btLimparPesquisa">Limpar</button>
+		</div>
+	</div>
+	<div id="resultadoPesquisa" style="margin-top:5px">
+		<div id="paginacaoPesquisa" style="float:right"></div>
+		<div id="mensagemPesquisa"></div>
+	</div>
+	<div id="gridPesquisa"></div>
+</div>
+
+<script type="text/javascript">
+	// constantes da configuração
+	var MAPA_CABECALHO = "Mapa dos Ativos de Transmissão e Geração";
+	var MAP_TRANSMISSAO_SERVICE_URL = "http://gisesul.eletrosul.gov.br/arcgis/rest/services/PORTAL_GEO/PROD_TRANSMISSAO/MapServer";
+	var MAP_CAD_FUNDIARIO_SERVICE_URL = "http://gisesul.eletrosul.gov.br/arcgis/rest/services/PORTAL_GEO/PROD_CADASTRO/MapServer";
+	var MAP_EOLICA_SERVICE_URL = "http://gisesul.eletrosul.gov.br/arcgis/rest/services/PORTAL_GEO/PROD_EOLICA/MapServer";
+	var MAP_POLITICO_SERVICE_URL = "http://gisesul.eletrosul.gov.br/arcgis/rest/services/PORTAL_GEO/PROD_LIMITE_POLITICO/MapServer"; 
+	var MAP_SOCIAL_SERVICE_URL = "http://gisesul.eletrosul.gov.br/arcgis/rest/services/PORTAL_GEO/PROD_SOCIAL/MapServer"; 
+	var MAP_AMBIENTAL_SERVICE_URL = "http://gisesul.eletrosul.gov.br/arcgis/rest/services/PORTAL_GEO/PROD_AMBIENTAL/MapServer"; 
+	var GEOMETRY_SERVICE_URL = "http://gisesul.eletrosul.gov.br/arcgis/rest/services/Utilities/Geometry/GeometryServer";
+	var PRINT_SERVICE_URL = "http://gisesul.eletrosul.gov.br/arcgis/rest/services/ExportWebMap/GPServer/Export%20Web%20Map";
+	var DB_SCHEMA = "GEO";
+	var DB_USER = "SIS_GIS";
+	var GMO_DB_USER = "SIS_ARCGIS";
+	var AMBIENTE = "";
+</script>
+<script type="text/javascript" src="js/strutils.js"></script>
+<script type="text/javascript" src="js/fontdetect.js"></script>
+<script type="text/javascript" src="js/fileutils.js"></script>
+<script type="text/javascript" src="js/mapas/transmissao.js" charset="UTF-8"></script>
+<script type="text/javascript" src="js/mapas/transmissao_desenho.js" charset="UTF-8"></script>
+<script type="text/javascript" src="js/mapas/transmissao_popup.js" charset="UTF-8"></script>
+<script type="text/javascript" src="js/mapas/transmissao_popup_aux.js" charset="UTF-8"></script>
+<script type="text/javascript" src="js/mapas/transmissao_pesquisa.js" charset="UTF-8"></script>
+<script type="text/javascript">
+	// botões
+	botao("#btVoltar", ICONE_VOLTAR, "index");
+	botao("#btInfoBasemap", ICONE_AJUDA, mostrarInfoBasemap);
+	botao("#btInsMarcador", ICONE_FLAG);
+	botao("#btLimpaMarcador", ICONE_CANCELAR, "");
+	botao("#btDownload", ICONE_DOWNLOAD);
+	mostrarBotao("#btDownload",false);
+	
+	// máscaras
+	mascaraDecimalComNegativo("#insLongitude", 6, 11);
+	mascaraDecimalComNegativo("#insLatitude", 6, 10);
+	mascaraInteiroComNegativo("#insGrausLongitude");
+	mascaraInteiro("#insMinutosLongitude");
+	mascaraInteiro("#insSegundosLongitude");
+	mascaraInteiroComNegativo("#insGrausLatitude");
+	mascaraInteiro("#insMinutosLatitude");
+	mascaraInteiro("#insSegundosLatitude");
+	mascaraInteiro("#markerSize");
+	mascaraInteiro("#markerOpacity");
+	mascaraInteiro("#outlineWidth");
+	mascaraInteiro("#outlineOpacity");
+	mascaraInteiro("#fillOpacity");
+	mascaraInteiro("#paramNumero");
+	garantirValorMinMax("#insLongitude");
+	garantirValorMinMax("#insLatitude");
+	garantirValorMinMax("#insGrausLongitude");
+	garantirValorMinMax("#insMinutosLongitude");
+	garantirValorMinMax("#insSegundosLongitude");
+	garantirValorMinMax("#insGrausLatitude");
+	garantirValorMinMax("#insMinutosLatitude");
+	garantirValorMinMax("#insSegundosLatitude");
+	garantirValorMinMax("#markerSize");
+	garantirValorMinMax("#markerOpacity");
+	garantirValorMinMax("#outlineWidth");
+	garantirValorMinMax("#outlineOpacity");
+	garantirValorMinMax("#fillOpacity");
+	
+	// carrega cabeçalho do mapa
+	$("#mapa_cabecalho").html(MAPA_CABECALHO);
+	$("#tituloMapaPrint").val(MAPA_CABECALHO);
+	
+	$(function() {
+	    $("#accordion-menu-lateral").accordion({
+	    	 heightStyle: "content",
+	    	 autoHeight: false,
+	    	 collapsible: true
+	    });
+		$(".accordion-legenda").accordion({
+			heightStyle: "content",
+			collapsible: true, 
+			active: false,
+			icons: { "header": "ui-icon-circlesmall-plus", "activeHeader": "ui-icon-circlesmall-minus" }
+		});	    
+	    $("#divPesquisa").dialog({
+	    	autoOpen: false,
+	    	title: "Pesquisa",
+	    	width: 800,
+	    	height: 500
+	    });
+	    $("#paramDesenho").accordion({
+	    	 heightStyle: "content",
+	    	 collapsible: true,
+	    	 active: false
+	    });
+	    $('.accordion-legenda input[type="checkbox"]').click(function(e) {
+	        e.stopPropagation();
+	    });
+	});
+	
+	$("#botao-menu-lateral").click(function() {
+		$("#botao-menu-lateral").hide();
+		$("#accordion-menu-lateral").toggle("slide", 1000, function() {
+			$("#botao-menu-lateral").show();
+		  });
+	});
+	
+	$("#botaoPesquisar").click(function() {
+		carregarOpcoesTensao();
+		carregarOpcoesEstado();
+		$("#divPesquisa").dialog("open");
+	});
+	
+    $( "#divPesquisa" ).bind( "dialogresize", function(event, ui) {
+    	ajustarTamanhoGridPesquisa();
+	});
+	
+	$("#tipoCoordenada").change(function() {
+		if ($(this).val() == "dd") {
+			$("#insGraus").show();
+			$("#insDMS").hide();
+			$("#insUTM").hide();
+		} else if ($(this).val() == "dms") {
+			$("#insGraus").hide();
+			$("#insDMS").show();
+			$("#insUTM").hide();
+		} else {
+			$("#insGraus").hide();
+			$("#insDMS").hide();
+			$("#insUTM").show();
+		};
+	});
+	$("#tipoCoordenada").change();
+	
+	$("#lbAreaInspecao").hide(); 
+	$("#lbAreaManutencao").hide();
+	$("#lbSiglaNomeLinha").hide();
+	$("#lbNome").hide();
+	$("#lbSigla").hide();
+	$("#tipoPesquisa").change(function() {
+		switch ($("#tipoPesquisa").val()) {
+			case "LT_OPE":  desabilitarTodosCampos(); $("#lbSiglaNomeOPE").show(); $("#lbNumero").show(); $("#lbImpl").show(); $("#lbTensao").show(); $("#espaco").show(); break;
+			case "LT_IMP": 	desabilitarTodosCampos(); $("#lbImpl").show(); $("#lbTensao").show(); $("#espaco").show(); break;
+			case "TO_OPE":	desabilitarTodosCampos(); $("#div_form_to_OPE").show(); $("#espaco").show(); break;
+			case "TO_OPGW":	desabilitarTodosCampos(); $("#div_form_to_OPGW").show(); $("#espaco").show(); break;
+			case "TO_IMP":	desabilitarTodosCampos(); $("#div_form_to_IMP").show(); $("#espaco").hide(); break;
+			case "SE_OPE":  desabilitarTodosCampos(); $("#lbSiglaNomeOPE").show(); $("#lbImpl").show(); $("#lbTensao").show(); $("#espaco").show(); break;
+			case "SE_IMP":  desabilitarTodosCampos(); $("#lbImpl").show(); $("#lbTensao").show(); $("#espaco").show(); break;
+			case "HO": 		desabilitarTodosCampos(); $("#lbSiglaNomeLinha").show(); $("#lbNome").show(); $("#espaco").show(); break;
+			case "M": 		desabilitarTodosCampos(); $("#espaco").hide(); break;
+			case "FD_CT" :  
+				// habilita campos 
+				desabilitarTodosCampos(); 
+				$("#div_form_input_text_1").show();$("#lbText1").text("Nome do proprietário: ");$("#div_form_input_text_2").show();$("#lbText2").text("Processo fundiário: ");
+				$("#div_form_input_text_3").show();$("#lbText3").text("Ato administrativo: ");$("#div_form_input_text_4").show();$("#lbText4").text("Número do documento: ");
+				$("#div_form_input_text_5").show();$("#lbText5").text("Pendência: ");
+				$("#div_form_select_1").show();$("#lbSelText1").text("Tipo empreendimento: ");
+				$("#div_form_select_2").show();$("#lbSelText2").text("Situação processo: ");
+				$("#div_form_select_3").show();$("#lbSelText3").text("Tipo indenização: ");
+				$("#espaco").hide(); 
+				// carrega opções dos campos
+				carregarOpcoesCampo("paramSelect1", fundLayerCadTrans, "TIPO_EMPREENDIMENTO");
+				carregarOpcoesCampo("paramSelect2", fundLayerCadTrans, "SITUACAO_PROCESSO");
+				carregarOpcoesCampo("paramSelect3", fundLayerCadTrans, "TIPO_INDENIZACAO");
+				break;
+			case "FD_PC" :  desabilitarTodosCampos(); $("#div_form_input_text_1").show();$("#lbText1").text("Nome do proprietário: "); $("#espaco").hide(); break;
+			case "FD_CI" :  desabilitarTodosCampos(); $("#div_form_input_text_2").show();$("#div_form_input_text_1").show();$("#lbText1").text("Nome do proprietário: ");$("#lbText2").text("Número do documento: "); $("#espaco").hide(); break;		
+			case "EOL_OPE": desabilitarTodosCampos(); $("#div_form_input_text_3").show();$("#div_form_input_text_2").show();$("#div_form_input_text_1").show();$("#lbText1").text("Nome da Usina: ");$("#lbText2").text("Sigla da Usina: ");$("#lbText3").text("Nome do Parque: "); $("#espaco").hide(); break;
+			// paramEstado e paramMunicipio aparecem sempre
+		};
+	});
+	
+	function desabilitarTodosCampos(){
+		$("#div_form_input_text_5").hide();$("#div_form_input_text_4").hide();$("#div_form_input_text_3").hide();$("#div_form_input_text_2").hide();$("#div_form_input_text_1").hide();
+		$("#div_form_select_1").hide();$("#div_form_select_2").hide();$("#div_form_select_3").hide();$("#div_form_select_4").hide();
+		$("#div_form_to_IMP").hide(); $("#div_form_to_OPE").hide(); $("#div_form_to_OPGW").hide(); 
+		$("#lbSiglaNomeLinha").hide(); $("#lbNome").hide(); 
+		$("#lbSiglaNomeOPE").hide(); $("#lbNumero").hide(); 
+		$("#lbSigla").hide(); $("#lbImpl").hide(); 
+		$("#lbTensao").hide(); $("#lbAreaInspecao").hide(); 
+		$("#lbAreaManutencao").hide();
+	}
+	
+	function redimensionarTela() {
+		alt = $(window).height();
+		$("#mapDiv").css("height", (alt - 78) + "px");
+	}
+	redimensionarTela();
+	$(window).resize(redimensionarTela);
+</script>
+		
+
+
+
+
+
+
+	</div>
+</body>
+</html>
